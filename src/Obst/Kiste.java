@@ -1,6 +1,6 @@
-package Tank;
+package Obst;
 
-public class Tank
+public class Kiste
 {
     int number;
     String content;

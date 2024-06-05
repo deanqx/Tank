@@ -4,6 +4,9 @@
  */
 package Tank;
 
+import java.util.ArrayList;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 
 /**
@@ -13,6 +16,22 @@ import javax.swing.JOptionPane;
 public class Main extends javax.swing.JFrame
 {
     Tank tank;
+    Tank modified_tank;
+    ArrayList<Tank> tanks = new ArrayList<>();
+    
+    private int getIndexOfTank(int number)
+    {
+        int i = 0;
+        for (; i < tanks.size(); i++)
+        {
+            if (tanks.get(i).getVolumen() == number)
+            {
+                break;
+            }
+        }
+        
+        return i;
+    }
     
     // @returns True for error
     private boolean save_modified()
@@ -36,7 +55,7 @@ public class Main extends javax.swing.JFrame
             return true;
         }
         
-        if (new_volumen > tank.maxvol)
+        if (modified_tank.setVolumen(new_volumen))
         {
             JOptionPane.showMessageDialog(diaModify, 
                     "Das Volumen ist größer als das Maximale Volumen");
@@ -46,24 +65,28 @@ public class Main extends javax.swing.JFrame
             return true;
         }
         
-        tank.content = (String) dModify_cmbContent.getSelectedItem();
-        tank.volumen = new_volumen;
-        
-        reload();
+        tanks.set(getIndexOfTank(modified_tank.getNumber()), modified_tank);
         
         dModify_btnSave.setEnabled(true);
         dModify_btnSaveClose.setEnabled(true);
         return false;
     }
     
-    private void reload()
+    private void open_modify_dialog()
     {
-        txtNumber.setText(Integer.toString(tank.number));
-        txtContent.setText(tank.content);
-        txtVolumen.setText(Integer.toString(tank.volumen));
-        txtMaxVol.setText(Integer.toString(tank.maxvol));
+        if (cmbNumber.getSelectedItem().equals(cmbNumber.getModel().getElementAt(0)))
+        {
+            int result = JOptionPane.showConfirmDialog(diaModify, "Es gibt keinen Tank. Soll einer angelegt werden?", "Fehler", JOptionPane.YES_NO_OPTION);
+            
+            if (result == JOptionPane.YES_OPTION)
+            {
+                open_create_dialog();
+            }
+            
+            return;
+        }
         
-        dModify_txtNumber.setText(txtNumber.getText());
+        dModify_txtNumber.setText(Integer.toString(tank.getNumber()));
         dModify_txtContent.setText(txtContent.getText());
         
         int i = 0;
@@ -80,23 +103,6 @@ public class Main extends javax.swing.JFrame
         dModify_txtVolumen.setText(txtVolumen.getText());
         dModify_txtNewVolumen.setText(txtVolumen.getText());
         dModify_txtMaxVol.setText(txtMaxVol.getText());
-    }
-    
-    private void open_modify_dialog()
-    {
-        if (txtNumber.getText().isEmpty())
-        {
-            int result = JOptionPane.showConfirmDialog(diaModify, "Es gibt keinen Tank. Soll einer angelegt werden?", "Fehler", JOptionPane.YES_NO_OPTION);
-            
-            if (result == JOptionPane.YES_OPTION)
-            {
-                open_create_dialog();
-            }
-            
-            return;
-        }
-        
-        reload();
         diaModify.setVisible(true);
     }
     
@@ -212,9 +218,9 @@ public class Main extends javax.swing.JFrame
         txtContent = new javax.swing.JTextField();
         lblNumber = new javax.swing.JLabel();
         lblContent = new javax.swing.JLabel();
-        txtNumber = new javax.swing.JTextField();
         txtMaxVol = new javax.swing.JTextField();
         btnModify = new javax.swing.JButton();
+        cmbNumber = new javax.swing.JComboBox<>();
 
         diaNew.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         diaNew.setTitle("Tank - Neuen Tank anlegen");
@@ -567,16 +573,6 @@ public class Main extends javax.swing.JFrame
 
         lblContent.setText("Inhalt");
 
-        txtNumber.setEditable(false);
-        txtNumber.setFocusable(false);
-        txtNumber.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                txtNumberActionPerformed(evt);
-            }
-        });
-
         txtMaxVol.setEditable(false);
         txtMaxVol.setFocusable(false);
 
@@ -586,6 +582,15 @@ public class Main extends javax.swing.JFrame
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 btnModifyActionPerformed(evt);
+            }
+        });
+
+        cmbNumber.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-" }));
+        cmbNumber.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                cmbNumberActionPerformed(evt);
             }
         });
 
@@ -602,14 +607,6 @@ public class Main extends javax.swing.JFrame
                         .addGap(38, 38, 38)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(lblNumber)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(txtNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(lblContent)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(txtContent, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
                                 .addComponent(lblVolumen)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(txtVolumen, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -621,7 +618,15 @@ public class Main extends javax.swing.JFrame
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(btnNew, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btnModify, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(btnModify, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblContent)
+                                    .addComponent(lblNumber))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txtContent, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                                    .addComponent(cmbNumber, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                         .addGap(17, 17, 17)))
                 .addContainerGap())
         );
@@ -633,7 +638,7 @@ public class Main extends javax.swing.JFrame
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblNumber)
-                    .addComponent(txtNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cmbNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblContent)
@@ -688,28 +693,38 @@ public class Main extends javax.swing.JFrame
         {
             int new_volumen = Integer.parseInt(volumen_str);
             int new_maxvol = Integer.parseInt(maxvol_str);
+            
+            Tank new_tank = new Tank(Integer.parseInt(number_str), 
+                    content_str, new_maxvol);
 
-            if (new_volumen > new_maxvol)
+            if (new_tank.setVolumen(new_volumen))
             {
                 JOptionPane.showMessageDialog(diaModify, 
                         "Das Volumen ist größer als das Maximale Volumen");
                 return;
             }
             
-            tank = new Tank();
-            tank.number = Integer.parseInt(number_str);
-            tank.content = content_str;
-            tank.volumen = new_volumen;
-            tank.maxvol = new_maxvol;
+            ComboBoxModel<String> current_model = cmbNumber.getModel();
+            DefaultComboBoxModel<String> new_model = new DefaultComboBoxModel<>();
+            
+            for (int i = 0; i < current_model.getSize(); i++)
+            {
+                new_model.addElement(current_model.getElementAt(i));
+            }
+            
+            new_model.addElement(Integer.toString(new_tank.getNumber()));
+            
+            cmbNumber.setModel(new_model);
+            tanks.add(new_tank);
         }
         catch (NumberFormatException e)
         {
             JOptionPane.showMessageDialog(diaNew,
-                    "Bitte in 'Kistennummer', 'Volumen' und 'Maximales Volumen' nur ganze Zahlen eintragen");
+                    "Bitte in 'Kistennummer', 'Volumen' und 'Maximales Volumen'" 
+                    + "nur ganze Zahlen eintragen");
             return;
         }
         
-        reload();
         diaNew.dispose();
     }//GEN-LAST:event_dNew_btnCreateActionPerformed
 
@@ -717,16 +732,6 @@ public class Main extends javax.swing.JFrame
     {//GEN-HEADEREND:event_txtContentActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtContentActionPerformed
-
-    private void txtNumberActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_txtNumberActionPerformed
-    {//GEN-HEADEREND:event_txtNumberActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtNumberActionPerformed
-
-    private void dNew_txtNumberActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dNew_txtNumberActionPerformed
-    {//GEN-HEADEREND:event_dNew_txtNumberActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_dNew_txtNumberActionPerformed
 
     private void dNew_txtMaxVolActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dNew_txtMaxVolActionPerformed
     {//GEN-HEADEREND:event_dNew_txtMaxVolActionPerformed
@@ -788,37 +793,95 @@ public class Main extends javax.swing.JFrame
 
     private void dModify_AddToVolumeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dModify_AddToVolumeActionPerformed
     {//GEN-HEADEREND:event_dModify_AddToVolumeActionPerformed
+        int new_volumen;
+        
         try
         {
-            int volumen = Integer.parseInt(dModify_txtNewVolumen.getText());
-            
-            volumen += Math.ceil((double) tank.maxvol * 0.20);
-            
-            dModify_txtNewVolumen.setText(Integer.toString(volumen));
+            new_volumen = Integer.parseInt(dModify_txtNewVolumen.getText());
         }
         catch (NumberFormatException e)
         {
             JOptionPane.showMessageDialog(diaNew,
                     "Bitte in 'Volumen' nur ganze Zahlen eintragen");
+
+            return;
         }
+        
+        if (modified_tank.setVolumen(new_volumen))
+        {
+            JOptionPane.showMessageDialog(diaModify, 
+                    "Das Volumen ist größer als das Maximale Volumen");
+
+            return;
+        }
+        
+        modified_tank.decrease();
+        dModify_txtNewVolumen.setText(Integer.toString(modified_tank.getVolumen()));
     }//GEN-LAST:event_dModify_AddToVolumeActionPerformed
 
     private void dModify_SubToVolumeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dModify_SubToVolumeActionPerformed
     {//GEN-HEADEREND:event_dModify_SubToVolumeActionPerformed
+        int new_volumen;
+        
         try
         {
-            int volumen = Integer.parseInt(dModify_txtNewVolumen.getText());
-            
-            volumen -= Math.ceil((double) tank.maxvol * 0.20);
-            
-            dModify_txtNewVolumen.setText(Integer.toString(volumen));
+            new_volumen = Integer.parseInt(dModify_txtNewVolumen.getText());
         }
         catch (NumberFormatException e)
         {
             JOptionPane.showMessageDialog(diaNew,
                     "Bitte in 'Volumen' nur ganze Zahlen eintragen");
+
+            return;
         }
+        
+        if (modified_tank.setVolumen(new_volumen))
+        {
+            JOptionPane.showMessageDialog(diaModify, 
+                    "Das Volumen ist größer als das Maximale Volumen");
+
+            return;
+        }
+        
+        modified_tank.increase();
+        dModify_txtNewVolumen.setText(Integer.toString(modified_tank.getVolumen()));
     }//GEN-LAST:event_dModify_SubToVolumeActionPerformed
+
+    private void dNew_txtNumberActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dNew_txtNumberActionPerformed
+    {//GEN-HEADEREND:event_dNew_txtNumberActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dNew_txtNumberActionPerformed
+
+    private void cmbNumberActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_cmbNumberActionPerformed
+    {//GEN-HEADEREND:event_cmbNumberActionPerformed
+        String number_str = (String) cmbNumber.getSelectedItem();
+        
+        if (number_str.equals(cmbNumber.getModel().getElementAt(0)))
+        {
+            txtContent.setText("");
+            txtVolumen.setText("");
+            txtMaxVol.setText("");
+            return;
+        }
+        
+        int number = Integer.parseInt(number_str);
+        
+        tank = tanks.get(getIndexOfTank(number));
+        
+        int number_index = 0;
+        for (; number_index < cmbNumber.getModel().getSize(); number_index++)
+        {
+            if (cmbNumber.getModel().getElementAt(number_index).equals(number_str))
+            {
+                break;
+            }
+        }
+        
+        cmbNumber.setSelectedIndex(number_index);
+        txtContent.setText(tank.getContent());
+        txtVolumen.setText(Integer.toString(tank.getVolumen()));
+        txtMaxVol.setText(Integer.toString(tank.getMaxvol()));
+    }//GEN-LAST:event_cmbNumberActionPerformed
 
     /**
      * @param args the command line arguments
@@ -868,6 +931,7 @@ public class Main extends javax.swing.JFrame
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnModify;
     private javax.swing.JButton btnNew;
+    private javax.swing.JComboBox<String> cmbNumber;
     private javax.swing.JButton dModify_AddToVolume;
     private javax.swing.JButton dModify_SubToVolume;
     private javax.swing.JButton dModify_btnCancel;
@@ -906,7 +970,6 @@ public class Main extends javax.swing.JFrame
     private javax.swing.JLabel lblVolumen;
     private javax.swing.JTextField txtContent;
     private javax.swing.JTextField txtMaxVol;
-    private javax.swing.JTextField txtNumber;
     private javax.swing.JTextField txtVolumen;
     // End of variables declaration//GEN-END:variables
 }

@@ -24,7 +24,7 @@ public class Main extends javax.swing.JFrame
         int i = 0;
         for (; i < tanks.size(); i++)
         {
-            if (tanks.get(i).getVolumen() == number)
+            if (tanks.get(i).getNumber() == number)
             {
                 break;
             }
@@ -76,13 +76,7 @@ public class Main extends javax.swing.JFrame
     {
         if (cmbNumber.getSelectedItem().equals(cmbNumber.getModel().getElementAt(0)))
         {
-            int result = JOptionPane.showConfirmDialog(diaModify, "Es gibt keinen Tank. Soll einer angelegt werden?", "Fehler", JOptionPane.YES_NO_OPTION);
-            
-            if (result == JOptionPane.YES_OPTION)
-            {
-                open_create_dialog();
-            }
-            
+            JOptionPane.showMessageDialog(this, "Es ist kein Tank ausgewählt.");
             return;
         }
         
@@ -712,7 +706,7 @@ public class Main extends javax.swing.JFrame
                 new_model.addElement(current_model.getElementAt(i));
             }
             
-            new_model.addElement(Integer.toString(new_tank.getNumber()));
+            new_model.addElement(Integer.toString(new_tank.getNumber()) + " | " + new_tank.getContent());
             
             cmbNumber.setModel(new_model);
             tanks.add(new_tank);
@@ -864,20 +858,10 @@ public class Main extends javax.swing.JFrame
             return;
         }
         
-        int number = Integer.parseInt(number_str);
+        int number = Integer.parseInt(number_str.split(" | ")[0]);
         
         tank = tanks.get(getIndexOfTank(number));
         
-        int number_index = 0;
-        for (; number_index < cmbNumber.getModel().getSize(); number_index++)
-        {
-            if (cmbNumber.getModel().getElementAt(number_index).equals(number_str))
-            {
-                break;
-            }
-        }
-        
-        cmbNumber.setSelectedIndex(number_index);
         txtContent.setText(tank.getContent());
         txtVolumen.setText(Integer.toString(tank.getVolumen()));
         txtMaxVol.setText(Integer.toString(tank.getMaxvol()));

@@ -14,6 +14,14 @@ public class Tank
         this.maxvol = maxvol;
     }
     
+    public Tank(Tank tank)
+    {
+        number = tank.getNumber();
+        content = tank.getContent();
+        volumen = tank.getVolumen();
+        maxvol = tank.getMaxvol();
+    }
+    
     public void setContent(String content)
     {
         this.content = content;

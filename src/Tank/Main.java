@@ -4,6 +4,7 @@
  */
 package Tank;
 
+import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -18,6 +19,40 @@ public class Main extends javax.swing.JFrame
     Tank tank;
     Tank modified_tank;
     ArrayList<Tank> tanks = new ArrayList<>();
+    
+    private void reload()
+    {
+        String number_str = (String) cmbNumber.getSelectedItem();
+
+        if (number_str.equals(cmbNumber.getModel().getElementAt(0)))
+        {
+            txtContent.setText("");
+            txtVolumen.setText("");
+            txtMaxVol.setText("");
+            return;
+        }
+
+        int number = Integer.parseInt(number_str.split(" | ")[0]);
+
+        tank = tanks.get(getIndexOfTank(number));
+        
+        txtContent.setText(tank.getContent());
+        txtVolumen.setText(Integer.toString(tank.getVolumen()));
+        txtMaxVol.setText(Integer.toString(tank.getMaxvol()));
+    }
+    
+     private void fuelle_CB()
+     {
+         cmbNumber.removeAllItems();
+         cmbNumber.addItem("-");
+         
+        for (int i = 0; i < tanks.size(); i++)
+        {
+            cmbNumber.addItem(Integer.toString(tanks.get(i).getNumber()) + " | " + tanks.get(i).getContent());
+        }
+        
+        System.out.println("here");
+     }
     
     private int getIndexOfTank(int number)
     {
@@ -66,6 +101,8 @@ public class Main extends javax.swing.JFrame
         }
         
         tanks.set(getIndexOfTank(modified_tank.getNumber()), modified_tank);
+        fuelle_CB();
+        reload();
         
         dModify_btnSave.setEnabled(true);
         dModify_btnSaveClose.setEnabled(true);
@@ -80,6 +117,8 @@ public class Main extends javax.swing.JFrame
             return;
         }
         
+        modified_tank = new Tank(tank);
+        
         dModify_txtNumber.setText(Integer.toString(tank.getNumber()));
         dModify_txtContent.setText(txtContent.getText());
         
@@ -93,7 +132,6 @@ public class Main extends javax.swing.JFrame
         }
         
         dModify_cmbContent.setSelectedIndex(i);
-        
         dModify_txtVolumen.setText(txtVolumen.getText());
         dModify_txtNewVolumen.setText(txtVolumen.getText());
         dModify_txtMaxVol.setText(txtMaxVol.getText());
@@ -580,11 +618,11 @@ public class Main extends javax.swing.JFrame
         });
 
         cmbNumber.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-" }));
-        cmbNumber.addActionListener(new java.awt.event.ActionListener()
+        cmbNumber.addItemListener(new java.awt.event.ItemListener()
         {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
+            public void itemStateChanged(java.awt.event.ItemEvent evt)
             {
-                cmbNumberActionPerformed(evt);
+                cmbNumberItemStateChanged(evt);
             }
         });
 
@@ -698,18 +736,8 @@ public class Main extends javax.swing.JFrame
                 return;
             }
             
-            ComboBoxModel<String> current_model = cmbNumber.getModel();
-            DefaultComboBoxModel<String> new_model = new DefaultComboBoxModel<>();
-            
-            for (int i = 0; i < current_model.getSize(); i++)
-            {
-                new_model.addElement(current_model.getElementAt(i));
-            }
-            
-            new_model.addElement(Integer.toString(new_tank.getNumber()) + " | " + new_tank.getContent());
-            
-            cmbNumber.setModel(new_model);
             tanks.add(new_tank);
+            fuelle_CB();
         }
         catch (NumberFormatException e)
         {
@@ -846,26 +874,13 @@ public class Main extends javax.swing.JFrame
         // TODO add your handling code here:
     }//GEN-LAST:event_dNew_txtNumberActionPerformed
 
-    private void cmbNumberActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_cmbNumberActionPerformed
-    {//GEN-HEADEREND:event_cmbNumberActionPerformed
-        String number_str = (String) cmbNumber.getSelectedItem();
-        
-        if (number_str.equals(cmbNumber.getModel().getElementAt(0)))
+    private void cmbNumberItemStateChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_cmbNumberItemStateChanged
+    {//GEN-HEADEREND:event_cmbNumberItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED)
         {
-            txtContent.setText("");
-            txtVolumen.setText("");
-            txtMaxVol.setText("");
-            return;
+            reload();
         }
-        
-        int number = Integer.parseInt(number_str.split(" | ")[0]);
-        
-        tank = tanks.get(getIndexOfTank(number));
-        
-        txtContent.setText(tank.getContent());
-        txtVolumen.setText(Integer.toString(tank.getVolumen()));
-        txtMaxVol.setText(Integer.toString(tank.getMaxvol()));
-    }//GEN-LAST:event_cmbNumberActionPerformed
+    }//GEN-LAST:event_cmbNumberItemStateChanged
 
     /**
      * @param args the command line arguments
